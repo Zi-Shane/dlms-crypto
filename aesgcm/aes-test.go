@@ -34,7 +34,7 @@ func ExampleNewGCMEncrypter() {
 	// aad = SC-AE || IC
 	aad, _ := hex.DecodeString("30D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
 
-	aesgcm, err := cipher.NewGCM(block)
+	aesgcm, err := cipher.NewGCMWithTagSize(block, 12)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -47,7 +47,7 @@ func ExampleNewGCMDecrypter() {
 	// The key argument should be the AES key, either 16 or 32 bytes
 	// to select AES-128 or AES-256.
 	key, _ := hex.DecodeString("000102030405060708090A0B0C0D0E0F")
-	ciphertext, _ := hex.DecodeString("801302ff8a7874133d414ced25b42534d28db0047720606b175bd52211be6841db204d39ee6fdb8e356855f6558503")
+	ciphertext, _ := hex.DecodeString("801302ff8a7874133d414ced25b42534d28db0047720606b175bd52211be6841db204d39ee6fdb8e356855")
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -59,7 +59,7 @@ func ExampleNewGCMDecrypter() {
 	// aad = SC-AE || IC
 	aad, _ := hex.DecodeString("30D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
 
-	aesgcm, err := cipher.NewGCM(block)
+	aesgcm, err := cipher.NewGCMWithTagSize(block, 12)
 	if err != nil {
 		panic(err.Error())
 	}
