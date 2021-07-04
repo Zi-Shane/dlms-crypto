@@ -21,6 +21,20 @@ go run examples/aes-decrypt/main.go
 ECDSA
 ----------
 
+#### change key pair in `ecdsa/ecdsa.go`
+
+- ECDSA Sign
+
+```
+go run examples/ecdsa-sign/main.go
+```
+
+- ECDSA Verify
+
+```
+go run examples/ecdsa-verify/main.go
+```
+
 ECDH
 ----------
 
