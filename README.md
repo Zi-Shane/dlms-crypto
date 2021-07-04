@@ -4,6 +4,20 @@ DLMS Crypto Tools
 AES-128-GCM
 ----------
 
+- AES-128-GCM Encryption
+
+```
+go run examples/aes-encrypt/main.go
+```
+
+- AES-128-GCM Encryption
+
+```
+go run examples/aes-decrypt/main.go
+```
+
+----------
+
 ECDSA
 ----------
 

@@ -18,11 +18,11 @@ import (
  * tag(16):    41db204d39ee6fdb8e356855f6558503
  **/
 
-func ExampleNewGCMEncrypter() {
+func ExampleNewGCMEncrypter(cipherkey, text, IV, AAD string) {
 	// The key argument should be the AES key, either 16 or 32 bytes
 	// to select AES-128 or AES-256.
-	key, _ := hex.DecodeString("000102030405060708090A0B0C0D0E0F")
-	plaintext, _ := hex.DecodeString("01011000112233445566778899AABBCCDDEEFF0000065F1F0400007E1F04B0")
+	key, _ := hex.DecodeString(cipherkey)
+	plaintext, _ := hex.DecodeString(text)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -30,9 +30,9 @@ func ExampleNewGCMEncrypter() {
 	}
 
 	// nonce(a.k.a IV) = SystemTitle || IC
-	nonce, _ := hex.DecodeString("4D4D4D0000BC614E01234567")
+	nonce, _ := hex.DecodeString(IV)
 	// aad = SC-AE || IC
-	aad, _ := hex.DecodeString("30D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
+	aad, _ := hex.DecodeString(AAD)
 
 	aesgcm, err := cipher.NewGCMWithTagSize(block, 12)
 	if err != nil {
@@ -43,11 +43,11 @@ func ExampleNewGCMEncrypter() {
 	fmt.Printf("%x\n", ciphertext)
 }
 
-func ExampleNewGCMDecrypter() {
+func ExampleNewGCMDecrypter(cipherkey, text, IV, AAD string) {
 	// The key argument should be the AES key, either 16 or 32 bytes
 	// to select AES-128 or AES-256.
-	key, _ := hex.DecodeString("000102030405060708090A0B0C0D0E0F")
-	ciphertext, _ := hex.DecodeString("801302ff8a7874133d414ced25b42534d28db0047720606b175bd52211be6841db204d39ee6fdb8e356855")
+	key, _ := hex.DecodeString(cipherkey)
+	ciphertext, _ := hex.DecodeString(text)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -55,9 +55,9 @@ func ExampleNewGCMDecrypter() {
 	}
 
 	// nonce(a.k.a IV) = SystemTitle || IC
-	nonce, _ := hex.DecodeString("4D4D4D0000BC614E01234567")
+	nonce, _ := hex.DecodeString(IV)
 	// aad = SC-AE || IC
-	aad, _ := hex.DecodeString("30D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
+	aad, _ := hex.DecodeString(AAD)
 
 	aesgcm, err := cipher.NewGCMWithTagSize(block, 12)
 	if err != nil {
