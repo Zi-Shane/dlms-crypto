@@ -8,35 +8,34 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"math/big"
+
+	helper "github.com/Zi-Shane/dlms-crypto/tools"
 )
 
+/**
+ * PublicKey:  "bc316842562ab04ca987f39fbc5368899a0f2d6059e1247b68d3dc4f26c75669"
+ *             "f808c6bb115b3b43e7f3a23d3e5f4bb3628183615a5604e1e603c9563bb24942"
+ * PrivateKey: "ce69efe1e68415ad5b9f4c8b2f3025cb1332ddbd881073309a53a526fd3d7dbd"
+**/
+
 // Key instanciation
-var pubkey = &ecdsa.PublicKey{
-	Curve: elliptic.P256(),
-	X:     fromBase16("bc316842562ab04ca987f39fbc5368899a0f2d6059e1247b68d3dc4f26c75669"),
-	Y:     fromBase16("f808c6bb115b3b43e7f3a23d3e5f4bb3628183615a5604e1e603c9563bb24942"),
-}
+var pubkey *ecdsa.PublicKey
+var privkey *ecdsa.PrivateKey
 
-var privkey = &ecdsa.PrivateKey{
-	PublicKey: *pubkey,
-	D:         fromBase16("ce69efe1e68415ad5b9f4c8b2f3025cb1332ddbd881073309a53a526fd3d7dbd"),
-}
+func Setkeypair(pubkeyXY, privkeyD string) {
+	pubkeyX := pubkeyXY[:len(pubkeyXY)/2]
+	pubkeyY := pubkeyXY[len(pubkeyXY)/2:]
 
-//sign will sign the provided signhash byte array using privkey
-func sign(signhash []byte) (outR, outS string) {
-	// If signhash is longer than the bit-length of the private key's curve
-	// order, signhash will be truncated to that length. It returns the
-	// signature as a pair of big integers.
-	r, s, err := ecdsa.Sign(rand.Reader, privkey, signhash)
-	if err != nil {
-		log.Fatalln(err)
+	pubkey = &ecdsa.PublicKey{
+		Curve: elliptic.P256(),
+		X:     helper.HextoBigInt(pubkeyX),
+		Y:     helper.HextoBigInt(pubkeyY),
 	}
 
-	outR = fmt.Sprintf("%064x", r)
-	outS = fmt.Sprintf("%064x", s)
-	fmt.Printf("\tSignature: \t%s\n\t\t\t%s\n", outR, outS)
-	return
+	privkey = &ecdsa.PrivateKey{
+		PublicKey: *pubkey,
+		D:         helper.HextoBigInt(privkeyD),
+	}
 }
 
 // hash produce a signhash byte array compatible with signature and verification processes.
@@ -52,44 +51,33 @@ func hash(inMsg string) []byte {
 	return signhash
 }
 
-// verify will verify the provided signhash upon signature r,s using pubkey
-func verify(signhash []byte, inR, inS string) {
-	// if we are not signing, we are verifying :
-	r := fromBase16(inR)
-	s := fromBase16(inS)
-	verifystatus := ecdsa.Verify(pubkey, signhash, r, s)
-	fmt.Println("\tVerification returned: ", verifystatus)
-}
+//sign will sign the provided signhash byte array using privkey
+func Suite1Sign(text string) (outR, outS string) {
+	// If signhash is longer than the bit-length of the private key's curve
+	// order, signhash will be truncated to that length. It returns the
+	// signature as a pair of big integers.
+	signhash := hash(text)
+	// fmt.Printf("\tSigning hash: %x \n", signhash)
 
-// fromBase16 is a helper method to use the prime in hex form, inspired from crypto/rsa/rsa_test.go
-func fromBase16(base16 string) *big.Int {
-	i, ok := new(big.Int).SetString(base16, 16)
-	if !ok {
-		log.Fatalln("trying to convert from base16 a bad number: ", base16)
+	r, s, err := ecdsa.Sign(rand.Reader, privkey, signhash)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	return i
+
+	outR = fmt.Sprintf("%064x", r)
+	outS = fmt.Sprintf("%064x", s)
+	// fmt.Printf("\tSignature: \t%s\n\t\t\t%s\n", outR, outS)
+	return
 }
 
-func ExampleECDSA() {
-	// Test when everything is fine:
-	signhash := hash("DEADC0DE")
-	r, s := sign(signhash)
-	verify(signhash, r, s)
-}
-
-func ExampleECDSASign(text string) {
+// verify will verify the provided signhash upon signature r,s using pubkey
+func Suite1Verify(text, signature string) bool {
 	signhash := hash(text)
-	fmt.Printf("\tSigning hash: %x \n", signhash)
-	sign(signhash)
-}
+	// fmt.Printf("\tSigning hash: %x \n", signhash)
 
-func ExampleECDSAVerify(text, signature string) {
-	// Test when everything is fine:
-	signhash := hash(text)
-	fmt.Printf("\tSigning hash: %x \n", signhash)
-
-	r := signature[:len(signature)/2]
-	s := signature[len(signature)/2:]
-
-	verify(signhash, r, s)
+	r := helper.HextoBigInt(signature[:len(signature)/2])
+	s := helper.HextoBigInt(signature[len(signature)/2:])
+	verifystatus := ecdsa.Verify(pubkey, signhash, r, s)
+	// fmt.Println("\tVerification returned: ", verifystatus)
+	return verifystatus
 }

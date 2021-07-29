@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Zi-Shane/dlms-crypto/aesgcm"
+	dlms_aesgcm "github.com/Zi-Shane/dlms-crypto/aesgcm"
 )
 
 /**
@@ -21,5 +21,5 @@ func main() {
 	IV := "4D4D4D0000BC614E01234567"
 	AAD := "30D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF"
 
-	aesgcm.ExampleNewGCMEncrypter(key, plaintext, IV, AAD)
+	dlms_aesgcm.ExampleNewGCMEncrypter(key, plaintext, IV, AAD)
 }
